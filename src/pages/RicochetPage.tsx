@@ -1,24 +1,14 @@
-import React, { useState } from "react"
+import React from "react"
 import Board from "../components/Board"
-import { resetGame } from "../controllers/gameController"
+// import RobotMoveLog from "./RobotMoveLog"
+// import HistoryPanel from "./HistoryPanel"
 
-const Home: React.FC = () => {
-  const [key, setKey] = useState(0)
-
-  const handleReset = () => {
-    resetGame()
-    setKey((prev) => prev + 1) // UI 강제 업데이트
-  }
-
+const RicochetPage: React.FC = () => {
   return (
-    <div className="flex flex-col items-center gap-4">
-      <h1 className="text-2xl font-bold">Ricochet Robots</h1>
-      <Board key={key} />
-      <button className="p-2 bg-red-500 text-white" onClick={handleReset}>
-        Reset Game
-      </button>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 space-y-6">
+      <Board />
     </div>
   )
 }
 
-export default Home
+export default RicochetPage

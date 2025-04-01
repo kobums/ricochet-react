@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react"
 import { getGameState, shuffleQuadrants } from "../controllers/gameController"
 import { GRID_SIZE } from "../models/gameState"
 import { motion } from "framer-motion"
-import { HistoryEntry, Target } from "../models/types"
+import { HistoryEntry } from "../models/types"
 import HistoryPanel from "./HistoryPanel"
-import RobotMoveLog, { RobotMoveLogProps } from "./RobotMoveLog"
+import RobotMoveLog from "./RobotMoveLog"
 
 const Board: React.FC = () => {
   const gameState = getGameState()
@@ -13,18 +13,82 @@ const Board: React.FC = () => {
     { x: number; y: number; color: string }[]
   >([])
   const [moveCount, setMoveCount] = useState(0)
-  const [initialPositions, setInitialPositions] = useState<{
-    [key: string]: { x: number; y: number }
-  }>({})
-
   const [robotHistory, setRobotHistory] = useState<HistoryEntry[]>([])
-
-  const colors = ["R", "B", "G", "Y"]
-  const targetColors = ["red", "blue", "green", "yellow"]
-
   const [robotMoveLog, setRobotMoveLog] = useState<
     { color: string; direction: "up" | "down" | "left" | "right" }[]
   >([])
+
+  const colors = ["red", "blue", "green", "yellow"]
+
+  const getColor = (color: string) => {
+    switch (color) {
+      case "red":
+        return "red"
+      case "blue":
+        return "blue"
+      case "green":
+        return "green"
+      case "yellow":
+        return "gold"
+      default:
+        return "black"
+    }
+  }
+
+  const getHighlightColor = (color: string) => {
+    switch (color) {
+      case "red":
+        return "rgba(255,0,0,0.3)"
+      case "blue":
+        return "rgba(0,0,255,0.3)"
+      case "green":
+        return "rgba(0,128,0,0.3)"
+      case "yellow":
+        return "rgba(255,215,0,0.3)"
+      default:
+        return "transparent"
+    }
+  }
+
+  const Wall: React.FC<{ position: "top" | "bottom" | "left" | "right" }> = ({
+    position,
+  }) => {
+    const styles: Record<string, React.CSSProperties> = {
+      top: {
+        position: "absolute",
+        top: 0,
+        left: "25%",
+        right: "25%",
+        height: "3px",
+        background: "#333",
+      },
+      bottom: {
+        position: "absolute",
+        left: "25%",
+        right: "25%",
+        bottom: 0,
+        height: "3px",
+        background: "#333",
+      },
+      left: {
+        position: "absolute",
+        left: 0,
+        top: "25%",
+        bottom: "25%",
+        width: "3px",
+        background: "#333",
+      },
+      right: {
+        position: "absolute",
+        right: 0,
+        top: "25%",
+        bottom: "25%",
+        width: "3px",
+        background: "#333",
+      },
+    }
+    return <div style={styles[position]} />
+  }
 
   const makeTarget = () => {
     // 목표 위치 설정
@@ -47,7 +111,7 @@ const Board: React.FC = () => {
       ) {
         gameState.target.pos = { x, y }
         gameState.target.color =
-          targetColors[Math.floor(Math.random() * targetColors.length)]
+          colors[Math.floor(Math.random() * colors.length)]
         break
       }
     }
@@ -123,17 +187,7 @@ const Board: React.FC = () => {
       dir = "up"
     }
 
-    const colorKeyMap: { [key: string]: string } = {
-      R: "red",
-      B: "blue",
-      G: "green",
-      Y: "yellow",
-    }
-
-    setRobotMoveLog((prev) => [
-      ...prev,
-      { color: colorKeyMap[robot.color], direction: dir },
-    ])
+    setRobotMoveLog((prev) => [...prev, { color: robot.color, direction: dir }])
 
     // 끝까지 이동
     while (true) {
@@ -209,7 +263,7 @@ const Board: React.FC = () => {
         ) {
           gameState.target.pos = { x: tx, y: ty }
           gameState.target.color =
-            targetColors[Math.floor(Math.random() * targetColors.length)]
+            colors[Math.floor(Math.random() * colors.length)]
           break
         }
       }
@@ -290,7 +344,6 @@ const Board: React.FC = () => {
       }
     })
 
-    setInitialPositions(positions)
     makeTarget()
     setRobotHistory([
       {
@@ -314,7 +367,7 @@ const Board: React.FC = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          minHeight: "100vh",
+          minHeight: "60vh",
           backgroundColor: "#111",
           flexDirection: "column",
         }}
@@ -335,22 +388,17 @@ const Board: React.FC = () => {
             Array.from({ length: 16 }, (_, gridX) => {
               const realX = gridX * 2 + 1
               const realY = gridY * 2 + 1
-
               const isResetButton =
                 (realX === 15 || realX === 17) && (realY === 15 || realY === 17)
-
               const robot = Object.entries(gameState.robots).find(
                 ([, r]) => r.pos.x === realX && r.pos.y === realY
               )
-
               const isHighlighted = highlightedCells.some(
                 (h) => h.x === realX && h.y === realY
               )
-
               const highlightColor = highlightedCells.find(
                 (h) => h.x === realX && h.y === realY
               )?.color
-
               const isTarget =
                 gameState.target.pos.x === realX &&
                 gameState.target.pos.y === realY
@@ -362,24 +410,14 @@ const Board: React.FC = () => {
                     width: "40px",
                     height: "40px",
                     backgroundColor: isHighlighted
-                      ? highlightColor === "R"
-                        ? "rgba(255,0,0,0.3)"
-                        : highlightColor === "B"
-                        ? "rgba(0,0,255,0.3)"
-                        : highlightColor === "G"
-                        ? "rgba(0,128,0,0.3)"
-                        : "rgba(255,215,0,0.3)"
+                      ? getHighlightColor(highlightColor || "")
                       : "#f7f1d0",
                     border: "1px solid #aaa",
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
                     position: "relative",
-                    cursor: robot
-                      ? "pointer"
-                      : isResetButton
-                      ? "pointer"
-                      : "default",
+                    cursor: robot || isResetButton ? "pointer" : "default",
                   }}
                   onClick={() => {
                     if (isResetButton) {
@@ -388,7 +426,6 @@ const Board: React.FC = () => {
                     else if (robot) handleRobotClick(robot[0], realX, realY)
                   }}
                 >
-                  {/* 로봇 */}
                   {robot && (
                     <motion.div
                       key={robot[0]}
@@ -409,29 +446,17 @@ const Board: React.FC = () => {
                       }}
                     >
                       <span
-                        style={{
-                          fontSize: "18px",
-                          color:
-                            robot[0] === "R"
-                              ? "red"
-                              : robot[0] === "B"
-                              ? "blue"
-                              : robot[0] === "G"
-                              ? "green"
-                              : "gold",
-                        }}
+                        style={{ fontSize: "18px", color: getColor(robot[0]) }}
                       >
                         ●
                       </span>
                     </motion.div>
                   )}
 
-                  {/* 중앙 리셋 버튼 아이콘 */}
                   {isResetButton && !robot && !isTarget && (
                     <span style={{ color: "white", fontSize: "20px" }}>⟳</span>
                   )}
 
-                  {/* 목표 위치 */}
                   {isTarget && !robot && (
                     <span
                       style={{
@@ -443,70 +468,23 @@ const Board: React.FC = () => {
                     </span>
                   )}
 
-                  {/* 오른쪽 벽 */}
+                  {/* 벽 렌더링 */}
                   {gameState.board[realY][realX + 1]?.isWall && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        right: 0,
-                        top: "25%",
-                        bottom: "25%",
-                        width: "3px",
-                        background: "#333",
-                      }}
-                    />
+                    <Wall position="right" />
                   )}
-
-                  {/* 아래쪽 벽 */}
                   {gameState.board[realY + 1]?.[realX]?.isWall && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        left: "25%",
-                        right: "25%",
-                        bottom: 0,
-                        height: "3px",
-                        background: "#333",
-                      }}
-                    />
+                    <Wall position="bottom" />
                   )}
-
-                  {/* 위쪽 외벽 */}
-                  {realY === 1 && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        left: "25%",
-                        right: "25%",
-                        height: "3px",
-                        background: "#333",
-                      }}
-                    />
-                  )}
-                  {/* 왼쪽 외벽 */}
-                  {realX === 1 && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        left: 0,
-                        top: "25%",
-                        bottom: "25%",
-                        width: "3px",
-                        background: "#333",
-                      }}
-                    />
-                  )}
+                  {realY === 1 && <Wall position="top" />}
+                  {realX === 1 && <Wall position="left" />}
                 </div>
               )
             })
           )}
         </div>
       </div>
-
-      {/* 하단 히스토리 패널 */}
-      <HistoryPanel history={robotHistory} onSelect={handleHistoryClick} />
       <RobotMoveLog moves={robotMoveLog} />
+      <HistoryPanel history={robotHistory} onSelect={handleHistoryClick} />
     </>
   )
 }

@@ -13,10 +13,10 @@ export const initialGameState: GameState = {
         .map(() => ({ isWall: false }))
     ),
   robots: {
-    R: { color: "red", pos: { x: 1, y: 1 } },
-    B: { color: "blue", pos: { x: 3, y: 3 } },
-    G: { color: "green", pos: { x: 5, y: 5 } },
-    Y: { color: "yellow", pos: { x: 7, y: 7 } },
+    red: { color: "red", pos: { x: 1, y: 1 } },
+    blue: { color: "blue", pos: { x: 3, y: 3 } },
+    green: { color: "green", pos: { x: 5, y: 5 } },
+    yellow: { color: "yellow", pos: { x: 7, y: 7 } },
   },
   target: { color: "red", pos: { x: 15, y: 15 } },
 }
