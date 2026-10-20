@@ -63,8 +63,8 @@ const socialButtonContainer = css`
 `
 
 const LoginForm: React.FC = () => {
-  const [username, setUsername] = useState("honggildong@naver.com")
-  const [password, setPassword] = useState("qwer1234!")
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
   const { mutate: login, isLoading, error } = useAuth()
   const [showErrorModal, setShowErrorModal] = useState(false)
 

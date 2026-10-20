@@ -46,10 +46,10 @@ const buttonStyle = css`
 `
 
 const SignUpPage: React.FC = () => {
-  const [name, setName] = useState("김땡땡")
-  const [email, setEmail] = useState("test@test.com")
-  const [password, setPassword] = useState("test1234!!")
-  const [confirmPassword, setConfirmPassword] = useState("test1234!!")
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [modalType, setModalType] = useState<"error" | "info" | null>(null)
   const [modalMessage, setModalMessage] = useState("")
   const [isEmailChecked, setIsEmailChecked] = useState(false) // Track if email is checked
